@@ -12,10 +12,18 @@ from langchain.output_parsers import OutputFixingParser
 
 class DocumentComparatorLLM:
     """
-    
+    A class to compare two documents using a language model and extract structured metadata & summary.
     """
     def __init__(self):
-        pass
+        load_dotenv()
+        self.log = CustomLogger().get_logger(__name__)
+        self.loader = ModelLoader()
+        self.prompt = PROMPT_REGISTRY['document_comparison']
+        self.llm = ModelLoader().load_llm()
+        self.parser = JsonOutputParser(pydantic_object=Metadata)
+        self.fixing_parser = OutputFixingParser.from_llm(parser=self.parser, llm=self.llm)
+        self.chain = self.prompt | self.llm | self.fixing_parser
+        self.log.info("DocumentComparatorLLM initialized successfully with Model and Parser")
 
     def compare_documents(self, document1: str, document2: str) -> dict:
         """
@@ -50,7 +58,7 @@ class DocumentComparatorLLM:
 
         except Exception as e:
             # Log the error
-            CustomLogger().get_logger(__name__).error("Document comparison failed", error=str(e))
+            self.log.error("Document comparison failed", error=str(e))
             raise DocumentPortalException("Document comparison failed", sys)
 
     def _format_response(self, response: dict) -> dict:
@@ -68,5 +76,5 @@ class DocumentComparatorLLM:
 
         except Exception as e:
             # Log the error
-            CustomLogger().get_logger(__name__).error("Response formatting failed", error=str(e))
+            self.log.error("Response formatting failed", error=str(e))
             raise DocumentPortalException("Response formatting failed", sys))
