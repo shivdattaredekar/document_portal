@@ -64,7 +64,7 @@ class ModelLoader:
             log.error("LLM provider not available in config", provider_key= provider_key)
             raise ValueError(f"Provider {provider_key} not in the config")
         
-        llm_config = llm_block['provider_key']
+        llm_config = llm_block[provider_key]
         provider= llm_config.get('provider')
         model_name= llm_config.get('model_name')
         temperature= llm_config.get('temperature', 0.2)  
@@ -79,14 +79,14 @@ class ModelLoader:
                         )
         elif provider == 'google':
             llm = ChatGoogleGenerativeAI(
-                api_key=os.getenv('GROQ_API_KEY'), 
+                api_key=os.getenv('GOOGLE_API_KEY'), 
                 model=model_name, 
                 temperature=temperature, 
                 max_tokens=max_tokens
             )
         else:
             llm = ChatOpenAI(
-                api_key=os.getenv('GROQ_API_KEY'), 
+                api_key=os.getenv('OPENAI_KEY'), 
                 model=model_name, 
                 temperature=temperature, 
                 max_tokens=max_tokens
