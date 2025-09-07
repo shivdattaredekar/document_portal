@@ -54,8 +54,10 @@ class DocumentHandler:
             with fitz.open(pdf_path) as doc:
                 for page_num, page in enumerate(doc, start=1):
                     text_chunks.append(f"\n--- page {page_num} ---\n{page.get_text()}")
-                text = '\n'.join(text_chunks)
+            text = '\n'.join(text_chunks)
             self.log.info('PDF read successfully', pdf_path=pdf_path, session_id=self.session_id, pages=len(text_chunks))
+            return text
+        
         except Exception as e:
             self.log.error(f"Error reading the PDF:{e}")
             raise DocumentPortalException(f"failed to read the PDF",e) from e
@@ -66,7 +68,7 @@ if __name__ == '__main__':
     from pathlib import Path
     from io import BytesIO
     
-    path = r'D:\\Datascience\\LLMOops Course\\document_portal\\data\\document_analysis\\Python.pdf'
+    path = r'D:\\Datascience\\LLMOops Course\\document_portal\\data\\document_analysis\\Attention_Is_All_You_Need.pdf'
 
     class dummyfile:
         def __init__(self,file_path):
