@@ -20,17 +20,39 @@ class DocumentIngestion:
         deletes the existing file in the base directory.
         """
         try:
-            pass
+            is self.base_dir.exists() and self.base_dir.is_dir():
+                for file in self.base_dir.iterdir():
+                    if file.is_file():
+                        file.unlink()
+                        self.log.info(f"Deleted existing file", path = str(file))
+                self.log.info("All existing files deleted successfully from the directory", directory=str(self.base_dir))
         except Exception as e:
             self.log.error(f"Error occurred while deleting the file: {e}")
             raise DocumentPortalException("Failed to delete the file", sys)
 
-    def save_uploaded_file(self):
+    def save_uploaded_file(self, reference_file, actual_file):
         """
         saves the uploaded file to the base directory.
         """
         try:
-            pass
+            self.delete_existing_file()
+            self.log.info('Existing file deleted successfully')
+            # Save the new file logic here
+            reference_path = self.base_dir / reference_file.name
+            actual_path = self.base_dir / actual_file.name
+
+            if not in reference_file.name.endswith('.pdf') or actual_file.name.endswith('.pdf'):
+                raise ValueError("Only PDF files are supported.")
+
+            with open(reference_path, 'wb') as f:
+                f.write(reference_file.getbuffer())
+
+            with open(actual_path, 'wb') as f:
+                f.write(actual_file.getbuffer())
+
+            self.log.info(f"Files saved successfully", reference_file=str(reference_path), actual_file=str(actual_path))
+
+            return reference_path, actual_path
         except Exception as e:
             self.log.error(f"Error occurred while saving the file: {e}")
             raise DocumentPortalException("Failed to save the file", sys)
