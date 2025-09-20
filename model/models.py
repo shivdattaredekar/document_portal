@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, RootModel
+from pydantic import BaseModel, Field, RootModel #type:ignore
 from typing import Annotated, List, Optional, Dict, Any, Union
 
 class Metadata(BaseModel):
