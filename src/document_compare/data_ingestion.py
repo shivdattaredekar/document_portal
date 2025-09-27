@@ -1,42 +1,32 @@
 import sys
 import os
 import fitz #type: ignore
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from logger.custom_logger import CustomLogger
 from exception.custom_exception import DocumentPortalException
 
 class DocumentIngestion:
     """
-    
+    Handel's saving, reading, combining of the two PDF's documents for comparison with session based versioning  
     """
 
-    def __init__(self, base_dir: str = "data\\document_compare"):
+    def __init__(self, base_dir: str = "data\\document_compare", session_id=None):
         self.log = CustomLogger().get_logger(__name__)
         self.base_dir = Path(base_dir)
-        self.base_dir.mkdir(parents=True, exist_ok=True)
+        self.session_id = session_id or f"session_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+        
+        self.session_path = self.base_dir / self.session_id
+        self.session_path.mkdir(parents=True, exist_ok=True)
 
-    def delete_existing_file(self):
-        """
-        deletes the existing file in the base directory.
-        """
-        try:
-            if self.base_dir.exists() and self.base_dir.is_dir():
-                for file in self.base_dir.iterdir():
-                    if file.is_file():
-                        file.unlink()
-                        self.log.info(f"Deleted existing file", path = str(file))
-                self.log.info("All existing files deleted successfully from the directory", directory=str(self.base_dir))
-        except Exception as e:
-            self.log.error(f"Error occurred while deleting the file: {e}")
-            raise DocumentPortalException("Failed to delete the file", sys)
+        self.log.info("Document Comparator session initialized", session_path = str(self.session_path)) 
 
     def save_uploaded_files(self, reference_file, actual_file):
         """
         saves the uploaded file to the base directory.
         """
         try:
-            self.delete_existing_file()
-            self.log.info('Existing file deleted successfully')
             # Save the new file logic here
             reference_path = self.base_dir / reference_file.name
             actual_path = self.base_dir / actual_file.name
@@ -104,3 +94,24 @@ class DocumentIngestion:
         except Exception as e:
             self.log.error(f"Error occurred while combining documents: {e}")
             raise DocumentPortalException("Failed to combine the documents", sys)
+        
+    def clean_old_session(self, keep_latest:int=3):
+        """
+            Optional method to delete the older sessions and only keep the latest N sessions
+        Args:
+            keep_latest (int, optional): _description_. Defaults to 3.
+        """
+
+        try:
+            folder = sorted([f for f in self.base_dir.iterdir() if f.is_dir()], reverse=True)
+
+            for f in folder[keep_latest:]:
+                for file in  f.iterdir():
+                    file.unlink()
+                f.rmdir()
+                self.log.info("Cleaned old session folder", folder = str(f))
+            self.log.info("Cleaned old sessions successfully", count = len(folder) - keep_latest)
+
+        except Exception as e:
+            self.log.error(f"Error occurred while cleaning old sessions", error =str(e))
+            raise DocumentPortalException("Failed to clean old sessions", sys)

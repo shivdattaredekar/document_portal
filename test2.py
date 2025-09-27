@@ -1,13 +1,10 @@
-from langchain_core.output_parsers import JsonOutputParser # type:ignore
-from model.models import Metadata
-from utlis.model_loader import ModelLoader
-from prompt.prompt_library import PROMPT_REGISTRY
+import os
+from pathlib import Path
 
-parser= JsonOutputParser(pydantic_object=Metadata)
+dir =os.path.join(os.getcwd(),'data','document_compare')
 
-inputs={
-        
-        "format_instructions":parser.get_format_instructions()
-    }
+fold = Path(dir)
+folders = [f for f in fold.iterdir() if f.is_dir()]
 
-print(inputs)
+print(fold)
+print(folders)

@@ -1,5 +1,5 @@
 import os
-import fitz
+import fitz #type:ignore
 import uuid
 from datetime import datetime
 from logger.custom_logger import CustomLogger
