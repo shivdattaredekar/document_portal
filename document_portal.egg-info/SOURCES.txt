@@ -8,7 +8,10 @@ exception/__init__.py
 exception/custom_exception.py
 logger/__init__.py
 logger/custom_logger.py
+model/__init__.py
+model/models.py
 prompt/__init__.py
 prompt/prompt_library.py
-utlis/LLM_utils.py
 utlis/__init__.py
+utlis/config_loader.py
+utlis/model_loader.py
