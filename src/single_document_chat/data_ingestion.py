@@ -2,9 +2,9 @@ import uuid
 from pathlib import Path
 import sys
 from datetime import datetime, timezone
-from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
+from langchain_community.document_loaders import PyPDFLoader #type:ignore
+from langchain.text_splitter import RecursiveCharacterTextSplitter #type:ignore
+from langchain_community.vectorstores import FAISS #type:ignore
 from logger.custom_logger import CustomLogger
 from exception.custom_exception import DocumentPortalException
 from utlis.model_loader import ModelLoader

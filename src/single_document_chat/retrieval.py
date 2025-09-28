@@ -1,12 +1,12 @@
 import os
 import sys
-from dotenv import load_dotenv
-from langchain_core.chat_history import BaseChatMessageHistory
-from langchain_community.chat_message_histories import ChatMessageHistory
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_community.vectorstores import FAISS
-from langchain.chains import create_history_aware_retriever, create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
+from dotenv import load_dotenv #type:ignore
+from langchain_core.chat_history import BaseChatMessageHistory #type:ignore
+from langchain_community.chat_message_histories import ChatMessageHistory #type:ignore
+from langchain_core.runnables.history import RunnableWithMessageHistory #type:ignore
+from langchain_community.vectorstores import FAISS #type:ignore
+from langchain.chains import create_history_aware_retriever, create_retrieval_chain #type:ignore
+from langchain.chains.combine_documents import create_stuff_documents_chain #type:ignore
 from utlis.model_loader import ModelLoader
 from exception.custom_exception import DocumentPortalException
 from logger.custom_logger import CustomLogger

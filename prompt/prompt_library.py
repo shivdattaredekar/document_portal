@@ -1,4 +1,4 @@
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder #type:ignore
 
 # Prompt for document analysis
 document_analysis_prompt = ChatPromptTemplate.from_template("""
