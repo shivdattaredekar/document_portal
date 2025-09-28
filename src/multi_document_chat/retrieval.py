@@ -8,14 +8,18 @@ from langchain_community.vectorstores import FAISS #type:ignore
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain #type:ignore
 from langchain.chains.combine_documents import create_stuff_documents_chain #type:ignore
 from langchain_core.output_parsers import StrOutputParser #type:ignore
+from langchain_core.messages import BaseMessage #type:ignore
 from utlis.model_loader import ModelLoader
 from exception.custom_exception import DocumentPortalException
 from logger.custom_logger import CustomLogger
 from model.models import PromptType
 from prompt.prompt_library import PROMPT_REGISTRY
 from operator import itemgetter
+from typing import List, Optional
 
-class ConversaionalRAG:
+
+
+class ConversationalRAG:
     def __init__(self, session_id:str, retriever=None):
         try:
             self.log = CustomLogger().get_logger(__name__)
@@ -27,11 +31,8 @@ class ConversaionalRAG:
             if retriever is None:
                 self._load_retriever_from_from_faiss()
                 self.log.info("Created retriever from local vectorstore")
-                
-                
-
-            self.retriever = retriever
-            
+    
+            self.retriever = retriever        
             self._build_lecl_chain()
             self.log.info("ConversationalRAG initialized successfully", session_id=self.session_id)
 
@@ -78,14 +79,30 @@ class ConversaionalRAG:
             self.log.error(f"Error in loading retriever from FAISS", error=str(e))
             raise DocumentPortalException("Error in loading retriever from FAISS", sys)
     
-    def invoke(self, user_input:str):
+    def invoke(self,
+            user_input:str,
+            chat_history:Optional[List[BaseMessage]]=None
+            )->str:
+        """
+
+        Args:
+            user_input (str): _description_
+            chat_history (_type_, optional): _description_. Defaults to Optional[List[BaseMessage]]=None.
+
+        Raises:
+            DocumentPortalException: _description_
+
+        Returns:
+            str: _description_
+        """
         try:
-            response = self.chain.invoke(
-                {"input": user_input},
+            answer = self.chain.invoke(
+                {
+                    "input": user_input,
+                    "chat_history":chat_history if chat_history else []
+                },
                 config={"configurable": {"session_id": self.session_id}}
             )
-
-            answer = response.get("answer", "No answer.")
 
             if not answer:
                 self.log.warning("No answer found from the RAG chain", session_id=self.session_id)
@@ -107,7 +124,7 @@ class ConversaionalRAG:
             model = ModelLoader().load_llm()
             self.log.info("Loaded LLM",
                         session_id=self.session_id,
-                        model_name=self.model.__class__.__name__)
+                        model_name=model.__class__.__name__)
             return model
         except Exception as e:
             self.log.error(f"Error in loading LLM", error=str(e))

@@ -13,9 +13,16 @@ from utlis.model_loader import ModelLoader
 
 
 class DocumentIngestor:
-    
-    """
-    
+    """_summary_
+
+    Raises:
+        DocumentPortalException: _description_
+        DocumentPortalException: _description_
+        DocumentPortalException: _description_
+        DocumentPortalException: _description_
+
+    Returns:
+        _type_: _description_
     """
     SUPPORTED_FILE_TYPES = {'.pdf', '.txt', '.docx', '.md'}
     
@@ -32,7 +39,7 @@ class DocumentIngestor:
             self.session_id = session_id or f"session_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}"
             self.session_file_path = self.file_path / self.session_id
             self.session_faiss_path = self.faiss_dir / self.session_id
-            self.session__file_path.mkdir(parents=True, exist_ok=True)
+            self.session_file_path.mkdir(parents=True, exist_ok=True)
             self.session_faiss_path.mkdir(parents=True, exist_ok=True)
 
             self.model_loader = ModelLoader()
@@ -68,13 +75,12 @@ class DocumentIngestor:
                 self.log.info(f"File saved successfully",
                             filename = uploaded_file.name,
                             temp_path = str(temp_path),
-                            file_size = uploaded_file.size,
                             session_id = self.session_id)
         
                 if ext == ".pdf":
                     loader = PyPDFLoader(str(temp_path))
                 elif ext == ".txt":
-                    loader = TextLoader(str(temp_path))
+                    loader = TextLoader(str(temp_path), encoding = "utf-8")
                 elif ext == ".docx":
                     loader = Docx2txtLoader(str(temp_path))
                 else:
