@@ -8,12 +8,12 @@ import shutil
 
 import fitz #type:ignore
 from pathlib import Path
-from datetime import datetime, timezone
 from typing import (
     List,
     Dict,
     Any,
     Optional,
+    Iterable
 )
 from langchain.schema import Document #type:ignore
 from langchain_community.document_loaders import (PyPDFLoader, #type:ignore
@@ -110,7 +110,6 @@ class FaissManager:
                 self._save_metadata()
                 return len(new_docs)
             
-
         except Exception as e:
             self.log.error(f"Failed to add documents to the Faiss index", error = str(e))
             raise DocumentPortalException(f"Error adding documents to the Faiss index", sys)
@@ -130,34 +129,95 @@ class FaissManager:
 
 
 class ChatIngestor:
-    def __init__(self):
+    def __init__( self,
+        temp_base: str = "data",
+        faiss_base: str = "faiss_index",
+        use_session_dirs: bool = True,
+        session_id: Optional[str] = None,
+    ):
+        
         try:
             self.log = CustomLogger().get_logger(__name__)
-        except Exception as Ex:
-            self.log.error(f"Failed to initialize the ChatIngestor", error = str(Ex))
-            raise DocumentPortalException(f"Error in initializing the ChatIngestor", sys)
+            self.model_loader = ModelLoader()
+            
+            self.use_session = use_session_dirs
+            self.session_id = session_id or generate_session_id()
+            
+            self.temp_base = Path(temp_base); self.temp_base.mkdir(parents=True, exist_ok=True)
+            self.faiss_base = Path(faiss_base); self.faiss_base.mkdir(parents=True, exist_ok=True)
+            
+            self.temp_dir = self._resolve_dir(self.temp_base)
+            self.faiss_dir = self._resolve_dir(self.faiss_base)
+
+            self.log.info("ChatIngestor initialized",
+                    session_id=self.session_id,
+                    temp_dir=str(self.temp_dir),
+                    faiss_dir=str(self.faiss_dir),
+                    sessionized=self.use_session)
         
-    def _resolve_dir(self):
+        except Exception as e:
+            self.log.error(f"Failed to initialize the ChatIngestor", error = str(e))
+            raise DocumentPortalException(f"Error in initializing the ChatIngestor", e) from e
+        
+    def _resolve_dir(self, base:Path):
         try:
-            pass
+            if self.use_session:
+                d = base / self.session_id # e.g. "faiss_index/abc123"
+                d.mkdir(parents=True, exist_ok=True) # creates dir if not exists
+                return d
+            self.log.info("Resolved the directory", dir=str(d))
+            return base # fallback: "faiss_index/"
+        
         except Exception as e:
             self.log.error(f"Failed to resolve the directory", error = str(e))
-            raise DocumentPortalException(f"Error in resolving the directory", sys)
+            raise DocumentPortalException(f"Error in resolving the directory", e) from e
         
-    def _split(self):
+    def _split(self, docs: List[Document], chunk_size=1000, chunk_overlap = 200)->List[Document]:
         try:
-            pass
+            splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+            chunks = splitter.split_documents(docs)
+            self.log.info("Documents split", chunks=len(chunks), chunk_size=chunk_size, overlap=chunk_overlap)
+            return chunks
+        
         except Exception as e:
             self.log.error(f"Failed to split the documents", error = str(e))
             raise DocumentPortalException(f"Error in splitting the documents", sys)
     
-    def buit_retriever(self):
+    def built_retriver( self,
+        uploaded_files: Iterable,
+        *,
+        chunk_size: int = 1000,
+        chunk_overlap: int = 200,
+        k: int = 5,):
+
         try:
-            pass
+            paths = save_uploaded_files(uploaded_files, self.temp_dir)
+            docs = load_documents(paths)
+            if not docs:
+                raise ValueError("No valid documents loaded")
+            
+            chunks = self._split(docs, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+            
+            ## FAISS manager very very important class for the docchat
+            fm = FaissManager(self.faiss_dir, self.model_loader)
+            
+            texts = [c.page_content for c in chunks]
+            metas = [c.metadata for c in chunks]
+            
+            try:
+                vs = fm.load_or_create(texts=texts, metadatas=metas)
+            except Exception:
+                vs = fm.load_or_create(texts=texts, metadatas=metas)
+                
+            added = fm.add_documents(chunks)
+            self.log.info("FAISS index updated", added=added, index=str(self.faiss_dir))
+            
+            return vs.as_retriever(search_type="similarity", search_kwargs={"k": k})
+            
         except Exception as e:
-            self.log.error(f"Failed to build the retriever", error = str(e))
-            raise DocumentPortalException(f"Error in building the retriever", sys)
-        
+            self.log.error("Failed to build retriever", error=str(e))
+            raise DocumentPortalException("Failed to build retriever", e) from e
+
         
 
 class DocHandler:
@@ -188,6 +248,7 @@ class DocHandler:
         except Exception as e:
             self.log.error("Failed to save PDF", error=str(e), session_id=self.session_id)
             raise DocumentPortalException(f"Failed to save PDF: {str(e)}", e) from e
+
 
     def read_pdf(self, pdf_path: str) -> str:
         try:
