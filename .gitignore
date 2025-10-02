@@ -1,5 +1,5 @@
 .env
-document_portal.egg-info
+document_portal.egg-info/
 test.py
 .venv/
 data/
