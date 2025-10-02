@@ -7,3 +7,5 @@ logs/
 logger/
 __pycache__/
 document_portal.egg-info/
+archive/
+
