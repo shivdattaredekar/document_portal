@@ -4,10 +4,11 @@ from typing import Iterable, List
 from fastapi import UploadFile #type:ignore
 from langchain.schema import Document #type:ignore
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader #type:ignore
-from logger import GLOBAL_LOGGER as log
+from logger import custom_logger
 from exception.custom_exception import DocumentPortalException
 SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 
+#log = custom_logger.get_logger(__name__)
 
 def load_documents(paths: Iterable[Path]) -> List[Document]:
     """Load docs using appropriate loader based on extension."""
@@ -22,13 +23,13 @@ def load_documents(paths: Iterable[Path]) -> List[Document]:
             elif ext == ".txt":
                 loader = TextLoader(str(p), encoding="utf-8")
             else:
-                log.warning("Unsupported extension skipped", path=str(p))
+                print("""log.warning("Unsupported extension skipped", path=str(p))""")
                 continue
             docs.extend(loader.load())
-        log.info("Documents loaded", count=len(docs))
+        print("""log.info("Documents loaded", count=len(docs))""")
         return docs
     except Exception as e:
-        log.error("Failed loading documents", error=str(e))
+        print("""log.error("Failed loading documents", error=str(e))""")
         raise DocumentPortalException("Error loading documents", e) from e
 
 def concat_for_analysis(docs: List[Document]) -> str:

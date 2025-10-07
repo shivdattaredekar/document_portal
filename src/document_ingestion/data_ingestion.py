@@ -26,14 +26,10 @@ from langchain_community.vectorstores import FAISS #type:ignore
 from logger.custom_logger import CustomLogger
 from exception.custom_exception import DocumentPortalException
 from utlis.model_loader import ModelLoader
-from utils.file_io import generate_session_id, save_uploaded_files #type:ignore
-from utils.document_ops import (load_documents, #type:ignore
+from utlis.file_io import generate_session_id, save_uploaded_files #type:ignore
+from utlis.document_ops import (load_documents, #type:ignore
                                 concat_for_analysis,
                                 concat_for_comparison)
-
-from logger.custom_logger import CustomLogger
-from exception.custom_exception import DocumentPortalException
-
 
 
 SUPPORTED_EXTENSIONS = {".pdf",".docx",".txt"}
@@ -217,8 +213,6 @@ class ChatIngestor:
         except Exception as e:
             self.log.error("Failed to build retriever", error=str(e))
             raise DocumentPortalException("Failed to build retriever", e) from e
-
-        
 
 class DocHandler:
     """

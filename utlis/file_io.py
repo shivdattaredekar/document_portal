@@ -6,10 +6,12 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import uuid
 from typing import Iterable, List
-from logger import GLOBAL_LOGGER as log
+from logger.custom_logger import CustomLogger
 from exception.custom_exception import DocumentPortalException
 
 SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt"}
+
+#log = CustomLogger.get_logger(__name__)
 
 # ----------------------------- #
 # Helpers (file I/O + loading)  #
@@ -27,7 +29,7 @@ def save_uploaded_files(uploaded_files: Iterable, target_dir: Path) -> List[Path
             name = getattr(uf, "name", "file")
             ext = Path(name).suffix.lower()
             if ext not in SUPPORTED_EXTENSIONS:
-                log.warning("Unsupported file skipped", filename=name)
+                print("""f"log.warning("Unsupported file skipped", filename=name)""")
                 continue
             # Clean file name (only alphanum, dash, underscore)
             safe_name = re.sub(r'[^a-zA-Z0-9_\-]', '_', Path(name).stem).lower()
@@ -40,8 +42,8 @@ def save_uploaded_files(uploaded_files: Iterable, target_dir: Path) -> List[Path
                 else:
                     f.write(uf.getbuffer())  # fallback
             saved.append(out)
-            log.info("File saved for ingestion", uploaded=name, saved_as=str(out))
+            print("""log.info("File saved for ingestion", uploaded=name, saved_as=str(out))""")
         return saved
     except Exception as e:
-        log.error("Failed to save uploaded files", error=str(e), dir=str(target_dir))
+        print("""log.error("Failed to save uploaded files", error=str(e), dir=str(target_dir))""")
         raise DocumentPortalException("Failed to save uploaded files", e) from e
