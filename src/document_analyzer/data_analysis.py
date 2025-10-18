@@ -5,8 +5,8 @@ from model.models import *
 from logger.custom_logger import CustomLogger
 from exception.custom_exception import DocumentPortalException
 from prompt.prompt_library import PROMPT_REGISTRY
-from langchain_core.output_parsers import JsonOutputParser
-from langchain.output_parsers import OutputFixingParser
+from langchain_core.output_parsers import JsonOutputParser #type:ignore
+from langchain.output_parsers import OutputFixingParser #type:ignore
 
 class DocumentAnalyzer:
     """

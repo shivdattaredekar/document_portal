@@ -1,12 +1,11 @@
 import os
+from pathlib import Path
 from typing import List, Optional, Any, Dict
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request #type:ignore
 from fastapi.responses import JSONResponse, HTMLResponse#type:ignore
 from fastapi.middleware.cors import CORSMiddleware#type:ignore
 from fastapi.staticfiles import StaticFiles#type:ignore
 from fastapi.templating import Jinja2Templates#type:ignore
-from pathlib import Path
-
 
 from src.document_ingestion.data_ingestion import (
     DocHandler,
