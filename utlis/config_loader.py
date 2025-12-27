@@ -1,4 +1,4 @@
-import yaml
+import yaml # type:ignore
 
 
 def load_config(file_path: str) -> dict:

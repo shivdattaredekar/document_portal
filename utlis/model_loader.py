@@ -1,14 +1,14 @@
 import os
 import sys
-from dotenv import load_dotenv
+from dotenv import load_dotenv #type:ignore
 from utlis.config_loader import load_config
 
 from logger.custom_logger import CustomLogger
 from exception.custom_exception import DocumentPortalException
-from langchain_google_genai.embeddings import GoogleGenerativeAIEmbeddings
-from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
-from langchain_groq.chat_models import ChatGroq
-from langchain_openai.chat_models import ChatOpenAI
+from langchain_google_genai.embeddings import GoogleGenerativeAIEmbeddings #type:ignore
+from langchain_google_genai.chat_models import ChatGoogleGenerativeAI #type:ignore
+from langchain_groq.chat_models import ChatGroq #type:ignore
+from langchain_openai.chat_models import ChatOpenAI #type:ignore
 
 log = CustomLogger().get_logger(__name__)
 

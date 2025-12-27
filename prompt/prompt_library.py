@@ -4,12 +4,12 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder #type
 document_analysis_prompt = ChatPromptTemplate.from_template("""
 You are a highly capable assistant trained to analyze and summarize documents.
 Return ONLY valid JSON matching the exact schema below.
-
 {format_instructions}
 
 Analyze this document:
 {document_text}
 """)
+
 
 # Prompt for document comparison
 document_comparison_prompt = ChatPromptTemplate.from_template("""
@@ -21,11 +21,10 @@ You will be provided with content from two PDFs. Your tasks are as follows:
 4. If any page do not have any change, mention as 'NO CHANGE' 
 
 Input documents:
-
 {combined_docs}
 
+                                                            
 Your response should follow this format:
-
 {format_instruction}
 """)
 
