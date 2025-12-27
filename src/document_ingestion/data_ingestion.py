@@ -11,11 +11,11 @@ import fitz  # type: ignore
 from langchain.schema import Document #type: ignore
 from langchain_text_splitters import RecursiveCharacterTextSplitter #type: ignore
 from langchain_community.vectorstores import FAISS #type: ignore
-from utils.model_loader import ModelLoader #type: ignore
+from utlis.model_loader import ModelLoader #type: ignore
 from logger import GLOBAL_LOGGER as log
 from exception.custom_exception import DocumentPortalException
-from utils.file_io import generate_session_id, save_uploaded_files #type: ignore
-from utils.document_ops import load_documents, concat_for_analysis, concat_for_comparison #type: ignore
+from utlis.file_io import generate_session_id, save_uploaded_files #type: ignore
+from utlis.document_ops import load_documents, concat_for_analysis, concat_for_comparison #type: ignore
 
 SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 
