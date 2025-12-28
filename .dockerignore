@@ -9,3 +9,6 @@ venv/
 .gitignore
 *.log
 logs/
+.venv/
+data/
+archive/
